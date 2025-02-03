@@ -6,7 +6,7 @@ from torch_geometric.nn import MessagePassing
 
 
 class PointNetLayer(MessagePassing):
-    def __init__(self, in_channels: int, out_channels: int):
+    def __init__(self, in_channels: int, out_channels: int, dim: int = 3):
         # Message passing with "max" aggregation.
         super().__init__(aggr='max')
 
@@ -14,7 +14,7 @@ class PointNetLayer(MessagePassing):
         # Here, the number of input features correspond to the hidden
         # node dimensionality plus point dimensionality (=3).
         self.mlp = Sequential(
-            Linear(in_channels + 3, out_channels),
+            Linear(in_channels + dim, out_channels),
             ReLU(),
             Linear(out_channels, out_channels),
         )

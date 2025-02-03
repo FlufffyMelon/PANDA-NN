@@ -7,10 +7,10 @@ from PointNetLayer import PointNetLayer
 
 
 class PointNet(torch.nn.Module):
-    def __init__(self, num_classes: int):
+    def __init__(self, in_channels: int = 3, num_classes: int = 6):
         super().__init__()
 
-        self.conv1 = PointNetLayer(3, 32)
+        self.conv1 = PointNetLayer(in_channels, 32)
         self.conv2 = PointNetLayer(32, 32)
         self.classifier = Linear(32, num_classes)
 

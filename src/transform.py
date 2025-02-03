@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 
 import torch
+from torch import Tensor
 import numpy as np
 
 from torch_geometric.data import Data, HeteroData
@@ -16,9 +17,12 @@ class DivideByHeight(BaseTransform):
         data: Union[Data, HeteroData],
     ) -> Union[Data, HeteroData]:
         if self.H is None:
-            data.pos /= data.box[2]
+            H = data.box[2].item()
         else:
-            data.pos /= self.H
+            H = self.H
+
+        data.pos /= H
+        data.box /= H
 
         return data
 
@@ -60,3 +64,20 @@ class CenterViaPBC(BaseTransform):
         data.pos -= torch.sign(data.pos) * data.box * ids
 
         return data
+
+
+class FourierEmbeddings(BaseTransform):
+    def forward(
+        self,
+        data: Union[Data, HeteroData],
+    ) -> Union[Data, HeteroData]:
+        theta = data.pos / data.box * 2 * np.pi
+        new_pos = torch.zeros((len(data.pos), 6))
+
+        for i in range(3):
+            new_pos[:, 2 * i] = torch.cos(theta[:, i])
+            new_pos[:, 2 * i + 1] = torch.sin(theta[:, i])
+
+        data.pos = new_pos
+        return data
+
